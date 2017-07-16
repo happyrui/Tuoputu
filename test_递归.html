@@ -1,0 +1,132 @@
+<html lang="zh">
+<title>VRRAT</title>
+</head>
+<body>
+<canvas id="canvas"></canvas>	
+
+<script src="jquery-1.11.0.min.js" type="text/javascript"></script>
+<script src="jtopo-0.4.8-min.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+	var canvas = document.getElementById('canvas');
+	canvas.width = 1500;
+	canvas.height = 1000;
+	var stage = new JTopo.Stage(canvas); // 创建一个舞台对象
+	var scene = new JTopo.Scene(stage); // 创建一个场景对象
+	//scene.background = './bg4.jpg';
+	
+	// 节点
+	function newNode(w,h,text,color){
+		var node = new JTopo.Node(text);
+		node.fillColor = color;
+		node.setSize(w, h);
+		node.textPosition = 'Middle_Center'; 
+		node.fontColor = '155,123,2';
+		node.font = 'bold 16px 微软雅黑';
+		scene.add(node);
+		return node;
+	}
+	
+	// 简单连线
+	function newLink(nodeA, nodeZ){
+		var link = new JTopo.Link(nodeA, nodeZ);        
+		link.lineWidth = 2; // 线宽
+		//link.dashedPattern = dashedPattern; // 虚线
+		link.bundleOffset = 60; // 折线拐角处的长度
+		link.bundleGap = 20; // 线条之间的间隔
+		//link.textOffsetY = 3; // 文本偏移量（向下3个像素）
+		//link.strokeColor = '0,200,255';
+		scene.add(link);
+		return link;
+	}
+	
+	var json =  {
+        name:'shebei',
+        child:[
+        {
+            name:"Mongo",
+            child:[{
+                name:1.1,
+                child:[{
+                    name:"mdzz"
+                }]
+            }]
+        },
+        {
+            name:"Mysql",
+            child:[
+            {
+                name:2.1,
+                child:[{
+                    name:'kkmm'
+                }]
+            },
+            {
+                name:2.2,
+                child:[{
+                    name:'kkaa'
+                }]
+            }
+            ]
+        },
+        {
+            name:"orocal",
+            child:[
+            {
+                name:3.1,
+                child:[{
+                    name:"kozz"
+                }]
+            },
+            {
+                name:3.2,
+                child:[]
+            }
+            ]
+        },
+        {
+            name:"Mq",
+            child:[
+            {
+                name:4.1,
+                child:[]
+            },
+            {
+                name:4.2,
+                child:[]
+            },
+            {
+                name:4.3,
+                child:[{
+                    name:'zr'
+                }]          
+            },
+            {
+                name:4.4,
+                child:[]                
+            }]
+        }]
+    };
+	function drawNode(data){
+		if(!data){
+			return;
+		}
+		if(data.name){
+			var nodeNew = newNode(60,60,data.name,'142,229,238');
+			console.log(!nodeNew.parentNode);
+			if(!nodeNew.parentNode){
+				var node = nodeNew;
+			}
+		}
+		if(data.child && data.child.length > 0){
+			for(var i=0;i<data.child.length;i++){
+				newLink(node, nodeNew);
+				drawNode(data.child[i]);							
+			}
+			scene.doLayout(JTopo.layout.TreeLayout('down', 100, 120));
+		}
+	}
+	drawNode(json);	
+</script>
+</body>
+</html>

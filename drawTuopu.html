@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" /> -->
+		<title>drawTuopu</title>
+	</head>
+
+	<body style="margin:0;padding:0;">
+	<!-- <body style="margin:0;padding:0;"onload="test()">  -->
+
+		<canvas id="canvas"></canvas>
+		<script src="js/jquery-1.11.0.min.js"></script>
+		<script src="js/jtopo-0.4.8-min.js"></script>
+		<!-- <script src="flexible.js"></script>
+		<script src="flexible_css.js"></script> -->
+		<script type="text/javascript">
+
+			//Node的半径
+			var raiduNode = 75; 
+
+			var asd = {
+				"first": {
+					"two_first": {
+						"three_one_one" :12,
+						"three_one_two" :{
+							"four_one_one" :90
+						},
+						"three_one_three" :12,
+						"three_one_four" :{
+							"four_one_one" :90
+						},
+						"three_one_five" :12,
+						"three_one_six" :{
+							"four_one_one" :90
+						}
+					},
+					"two_second": {
+						"three_two_one" :12,
+						"three_two_two" :{
+							"four_two_one" :{
+								"five_two_one":123,
+								"five_two_two":1
+							}
+						},
+						"three_two_three" :12,
+						"three_two_four" :{
+							"four_two_one" :{
+								"five_two_one":123,
+								"five_two_two":1
+							}
+						},
+						"three_two_five" :12,
+						"three_two_six" :{
+							"four_two_one" :{
+								"five_two_one":123,
+								"five_two_two":{
+									"five_two_one":123
+								}
+							}
+						}
+					},
+					"two_third": {
+						"three_three_one": 31,
+						"three_three_two": 32,
+						"three_three_three": 31,
+						"three_three_four": 32,
+						"three_three_five": 31,
+						"three_three_six": 32
+					},
+					"two_four": {
+						"three_first": 31,
+						"three_second": 32
+					},
+					"two_five": {
+						"three_five_one": 31,
+						"three_five_two": 32,
+						"three_five_three": 31,
+						"three_five_four": 32,
+						"three_five_five": 31,
+						"three_five_six": 32
+					},
+					"two_six": {
+						"three_first": 31,
+						"three_second": 32
+					}
+				}
+			};
+
+			var obj = {
+				"first": {
+					"two_first": 21,
+					"two_second": 22,
+					"two_third": {
+						"three_first": 31,
+						"three_second": 32
+					}
+				}
+			};
+			//从Android 传递过来的J
+			function showInfoFromJava(msg){
+				// alert(msg);
+				var msg =JSON.parse(msg);
+				// alert(msg);
+				draw(msg);
+			}
+			//测试方法
+			function test(){
+				draw(obj);
+			}
+			//圆点节点
+			function newCircleNode(text){
+				var node = new JTopo.CircleNode(text);
+				node.radius = raiduNode;
+				node.setLocation(60,-30);	
+				node.fontColor = '255,255,255';
+				node.font = 'bold 32px 微软雅黑';
+				node.dragable = false;
+				// node.layout = {type: 'tree', width:180, height: 100}
+				//cloudNode.setLocation(360, 130);
+
+				node.textPosition = 'Middle_Center'; // 文本位置
+				node.textOffsetY = -(raiduNode/4);//文字上下偏移量
+				scene.add(node);
+				return node;
+			}
+			// 矩形节点
+			function newSquareNode(w,h,text,color){
+				var node = new JTopo.Node(text);
+				//node.fillColor = color;
+				node.setSize(w, h);
+				node.textPosition = 'Middle_Center'; 
+				node.textOffsetY = -(h/10);//文字上下偏移量
+				node.fontColor = '255,255,255';
+				node.font = 'bold 32px 微软雅黑';
+		        node.dragable = false;
+				scene.add(node);
+				return node;
+			}
+
+			//简单连线   isDotte  是否为虚线
+			function newLink(nodeA, nodeZ, isDotte) {
+				var link = new JTopo.Link(nodeA, nodeZ);
+				link.lineWidth = 3; // 线宽
+				if(isDotte){
+					link.dashedPattern = 5;
+				}
+				//link.dashedPattern = dashedPattern; // 虚线
+				link.bundleOffset = 60; // 折线拐角处的长度
+				link.bundleGap =30; // 线条之间的间隔
+				link.textOffsetY = 3; // 文本偏移量（向下3个像素）
+				link.strokeColor = '255,255,255';
+				scene.add(link);
+				return link;
+			}
+
+
+			function getJsonLength(jsonData) {
+				var jsonLength = 0;
+				for(var item in jsonData) {
+					jsonLength++;
+				}
+				return jsonLength;
+			}
+			var stage;
+			var scene;
+
+			function nodeClick( node){
+//				alert(node.text);
+
+				window.AndroidToast.show(node.text);
+			}
+
+			function draw(jsonData){
+				console.log(jsonData);
+				var canvas = document.getElementById('canvas');
+				/*canvas.width= document.documentElement.clientWidth;
+				canvas.height= document.documentElement.clientHeight;*/
+				canvas.width= 1206;
+				canvas.height= 800;
+				stage = new JTopo.Stage(canvas);
+				//显示工具栏
+				/*showJTopoToobar(stage);*/
+
+				scene = new JTopo.Scene();
+				scene.background = 'img/bg.jpg';
+				scene.mode ="select";
+				stage.add(scene);
+				//标题 文字说明
+				var textNode = new JTopo.TextNode('拓扑图');
+				textNode.font = 'bold 50px 微软雅黑';
+    			textNode.setLocation(-80, 0);
+    			textNode.textPosition = 'Middle_Center'; 
+    			textNode.dragable = false;
+				scene.add(textNode);
+				
+				var rootNode = newSquareNode(140,140,'网关','');
+				rootNode.addEventListener('click', function() {
+					nodeClick(this);
+				});
+				
+				drawNode(rootNode, jsonData.first);
+
+				//参1:up 向上，down向下   参2:两个节点之间的距离   参3：树的高度
+				scene.doLayout(JTopo.layout.TreeLayout('down', raiduNode*2, raiduNode*3));
+
+
+				       
+			}
+		
+		    var i = 0;
+			function drawNode(note1, obj) {
+					
+				if(obj instanceof Object) {
+					for(var item in obj) {
+						i++;
+						var circleNode = newCircleNode('AP'+i);
+
+						newLink(note1,circleNode,true);
+
+						if(obj[item] instanceof Object) {
+
+							drawNode(circleNode, obj[item]);
+						}
+
+						circleNode.addEventListener('click', function() {
+							nodeClick(this);
+
+						});  
+					}
+
+				}
+			}
+
+
+		</script>
+	</body>
+
+</html>
